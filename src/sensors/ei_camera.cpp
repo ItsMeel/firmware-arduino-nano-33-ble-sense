@@ -42,7 +42,8 @@ bool do_crop = false;
 
 static ei_device_snapshot_resolutions_t resolutions[] = {
         { .width = 160, .height = 120 },
-        { .width = 128, .height = 96 }
+        { .width = 128, .height = 96 },
+        { .width = 96, .height = 96 }
     };
 
 static bool prepare_snapshot(size_t width, size_t height, bool use_max_baudrate);
@@ -842,7 +843,8 @@ void OV7675::readBuf()
             in &= 0x3f03; // isolate the 8 bits we care about
             in |= (in >> 6); // combine the upper 6 and lower 2 bits
 
-            raw_buf[offset++] = in;
+            // Change positions of bit 0 and bit 1 because the Tiny Machine Learning kit shield has D0 and D1 inverted by default
+            raw_buf[offset++] = (in & 0xfffc) | ((in & 0x0001) << 1) | ((in & 0x0002) >> 1);
 
             while ((*pclkPort & pclkMask) == 0); // wait for HIGH
         }
